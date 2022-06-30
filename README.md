@@ -6,6 +6,9 @@
 
 ## 使用
 
+默认访问 `localhost:8080`, 如有需要请改变脚本中的`host`变量
+
+
 ```bash
 python3 src/correctness.py
 ```
