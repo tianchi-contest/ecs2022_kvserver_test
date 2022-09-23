@@ -8,6 +8,15 @@ host = "http://localhost:8080"
 def init():
     return requests.get(f"{host}/init")
 
+def update_cluster():
+    return requests.post(f"{host}/updateCluster", json={
+  "hosts": [
+    "192.0.0.1",
+    "192.0.0.2",
+    "192.0.0.3"
+  ],
+  "index": 1
+})
 
 def add(key: str, value: str):
     return requests.post(f"{host}/add", json={"key": key, "value": value})
@@ -73,6 +82,10 @@ def test_basic_kv():
     resp = del_("k1")
     assert resp.status_code == 200
 
+    resp = get("k1")
+    assert resp.status_code == 404
+    assert resp.text == ""
+
 
 def test_batch_kv():
     data = []
@@ -129,6 +142,7 @@ def test_zset():
 
 if __name__ == "__main__":
     wait_until_inited()
+    #update_cluster()
     test_basic_kv()
     test_batch_kv()
     test_zset()
