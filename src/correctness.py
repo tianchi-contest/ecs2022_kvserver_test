@@ -9,14 +9,30 @@ def init():
     return requests.get(f"{host}/init")
 
 def update_cluster():
-    return requests.post(f"{host}/updateCluster", json={
+    requests.post(f"http://localhost:8080/updateCluster", json={
   "hosts": [
-    "192.0.0.1",
-    "192.0.0.2",
-    "192.0.0.3"
+    "127.0.0.1:8090",
+    "127.0.0.1:8091",
+    "127.0.0.1:8092",
   ],
   "index": 1
 })
+    requests.post(f"http://localhost:8081/updateCluster", json={
+        "hosts": [
+            "127.0.0.1:8090",
+            "127.0.0.1:8091",
+            "127.0.0.1:8092",
+        ],
+        "index": 2
+    })
+    requests.post(f"http://localhost:8082/updateCluster", json={
+        "hosts": [
+            "127.0.0.1:8090",
+            "127.0.0.1:8091",
+            "127.0.0.1:8092",
+        ],
+        "index": 3
+    })
 
 def add(key: str, value: str):
     return requests.post(f"{host}/add", json={"key": key, "value": value})
@@ -117,8 +133,9 @@ def test_zset():
     values = json.loads(resp.text)
     assert len(values) == 10
     for i in range(len(values)):
-        assert values[i]["value"] == f"zv{i}"
-        assert values[i]["score"] == i
+        s=values[i]["score"]
+        assert values[i]["value"] == f"zv{s}"
+
 
     rm_list = []
     left_list = []
@@ -137,12 +154,14 @@ def test_zset():
     values = json.loads(resp.text)
     assert len(values) == len(left_list)
     for i in range(len(values)):
-        assert values[i] == left_list[i]
+        s=values[i]["score"]
+        assert values[i]["value"] == f"zv{s}"
+        assert s%2==0
 
 
 if __name__ == "__main__":
+    update_cluster()
     wait_until_inited()
-    #update_cluster()
     test_basic_kv()
     test_batch_kv()
     test_zset()
